@@ -37,6 +37,11 @@ class Compte
      */
     private $idClients;
 
+    /**
+     * @MongoDB\Field(type="float")
+     */
+    private $taux = 0.5;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -107,6 +112,18 @@ class Compte
     public function setIdClients(?Client $idClients): self
     {
         $this->idClients = $idClients;
+
+        return $this;
+    }
+
+    public function getTaux(): ?float
+    {
+        return $this->taux;
+    }
+
+    public function setTaux(float $taux): self
+    {
+        $this->taux = $taux;
 
         return $this;
     }

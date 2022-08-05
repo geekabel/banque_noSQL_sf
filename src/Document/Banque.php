@@ -25,11 +25,6 @@ class Banque {
      */
      private Compte $comptes;
 
-    /**
-     * @MongoDB\Field(type="string")
-     */
-    private TypeCompte $typecomptes;
-
 
      public function __construct($comptes, $typecomptes)
      {
