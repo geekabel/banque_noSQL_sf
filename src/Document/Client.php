@@ -1,10 +1,12 @@
 <?php
 
-
 namespace App\Document;
 
-
+use App\Document\Compte;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Doctrine\ODM\MongoDB\Mapping\Annotations\ReferenceMany;
 
 
 /**
@@ -38,24 +40,9 @@ class Client
     private $telephone;
 
     /**
-     * @MongoDB\Field(type="string")
+     * @ReferenceMany(targetDocument="Compte::class", mappedBy="idClients")
      */
-    private $email;
-
-    /**
-     * @MongoDB\Field(type="string")
-     */
-    private $cni;
-
-    /**
-     * @MongoDB\Field(type="string")
-     */
-    private Compte $comptes;
-
-    /**
-     * @MongoDB\Field(type="string")
-     */
-    private TypeCompte $typecomptes;
+    private Collection $comptes;
 
     /**
      * @MongoDB\Field(type="string")
@@ -64,7 +51,7 @@ class Client
 
     public function __construct()
     {
-       
+        $this->comptes = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -120,53 +107,18 @@ class Client
         return $this;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getCni(): ?string
-    {
-        return $this->cni;
-    }
-
-    public function setCni(string $cni): self
-    {
-        $this->cni = $cni;
-
-        return $this;
-    }
-
-    public function getComptes(): ?Compte
+    public function getComptes(): Collection
     {
         return $this->comptes;
     }
 
-    public function setComptes(?Compte $comptes): self
+    public function setComptes(Collection $comptes): self
     {
         $this->comptes = $comptes;
 
         return $this;
     }
 
-    public function getTypecomptes(): ?TypeCompte
-    {
-        return $this->typecomptes;
-    }
-
-    public function setTypecomptes(?TypeCompte $typecomptes): self
-    {
-        $this->typecomptes = $typecomptes;
-
-        return $this;
-    }
 
     public function getBanques(): ?Banque
     {
@@ -189,7 +141,7 @@ class Client
             $to->setSolde($to->getSolde() + $amount);
         }
     }
-    
+
     // A customer must be able to transfer funds to another customer's account by paying a given price per transaction.
 
     public function transferFundsToAnotherCustomer($amount, $from, $to, $price)

@@ -2,12 +2,14 @@
 
 namespace App\Document;
 
+use App\Document\Client;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Doctrine\ODM\MongoDB\Mapping\Annotations\ReferenceOne;
 
 /**
  * @MongoDB\Document(collection="compte")
  */
-class Compte
+abstract class Compte
 {
 
     /**
@@ -26,18 +28,17 @@ class Compte
     private $numcompte;
 
     /**
-     * @MongoDB\Field(type="string")
+     * @MongoDB\Field(type="float")
      */
     private $solde;
 
     /**
-     * @MongoDB\Field(type="string")
+     * @ReferenceOne(targetDocument="Client::class", inversedBy="comptes")
      */
-    private TypeCompte $typecomptes;
+    private $idClients;
 
 
-
-
+    
     public function getId(): ?string
     {
         return $this->id;
@@ -67,7 +68,7 @@ class Compte
         return $this;
     }
 
-    public function getSolde(): ?string
+    public function getSolde(): ?float
     {
         if ($this->solde < 0) {
             $this->solde = 0;
@@ -76,25 +77,12 @@ class Compte
         return $this->solde;
     }
 
-    public function setSolde(string $solde): self
+    public function setSolde(float $solde): self
     {
         $this->solde = $solde;
 
         return $this;
     }
-
-    public function getTypecomptes(): ?TypeCompte
-    {
-        return $this->typecomptes;
-    }
-
-    public function setTypecomptes(?TypeCompte $typecomptes): self
-    {
-        $this->typecomptes = $typecomptes;
-
-        return $this;
-    }
-
 
     // add money on the account
     public function addMoney($amount)
@@ -105,7 +93,7 @@ class Compte
     // remove money from the account
     public function removeMoney($amount)
     {
-       
+
         if ($amount > $this->solde) {
             $this->solde = 0;
         } else {
@@ -113,19 +101,15 @@ class Compte
         }
     }
 
-    /**
-     *  Increase the balance of this account by M * T for each deposit of money of amount M 
-     */
-    
-    public function calculerInteret($montant, $taux)
+    public function getIdClients(): ?Client
     {
-        // if typeCompte is savings
-        if ($this->getTypecomptes()->getLibelle() == "Epargne") {
-            $this->solde += $montant * $taux;
-        }
-
-        return $this->solde;
+        return $this->idClients;
     }
 
+    public function setIdClients(?Client $idClients): self
+    {
+        $this->idClients = $idClients;
 
+        return $this;
+    }
 }
