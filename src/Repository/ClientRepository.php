@@ -2,15 +2,17 @@
 
 namespace App\Repository;
 
-use App\Document\Client;
+use MongoDB\Client;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
 
-class CompteRepository extends DocumentRepository
+class ClientRepository extends DocumentRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(DocumentManager $dm)
     {
-        //parent::__construct($registry, Client::class);
+        $uow = $dm->getUnitOfWork();
+        $classMetaData = $dm->getClassMetadata(Client::class);
+        parent::__construct($dm, $uow, $classMetaData);
     }
-
 }

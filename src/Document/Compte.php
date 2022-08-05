@@ -7,9 +7,9 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\ODM\MongoDB\Mapping\Annotations\ReferenceOne;
 
 /**
- * @MongoDB\Document(collection="compte")
+ * @MongoDB\Document(collection="compte", repositoryClass="App\Repository\CompteRepository")
  */
-abstract class Compte
+class Compte
 {
 
     /**
@@ -37,8 +37,6 @@ abstract class Compte
      */
     private $idClients;
 
-
-    
     public function getId(): ?string
     {
         return $this->id;

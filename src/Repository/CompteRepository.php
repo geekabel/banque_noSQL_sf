@@ -3,14 +3,26 @@
 namespace App\Repository;
 
 use App\Document\Compte;
-use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
 
 class CompteRepository extends DocumentRepository
 {
-    public function __construct(ManagerRegistry $registry)
+
+    public function __construct(DocumentManager $dm)
     {
-     //   parent::__construct($registry, Compte::class);
+        $uow = $dm->getUnitOfWork();
+        $classMetaData = $dm->getClassMetadata(Compte::class);
+        parent::__construct($dm, $uow, $classMetaData);
     }
 
+    public function findSoldeByNumCompte($numCompte)
+    {
+        $compte = $this->createQueryBuilder('c')
+            ->field('numcompte')->equals($numCompte)
+            ->getQuery()
+            ->getSingleResult();
+
+        return $compte->getSolde();
+    }
 }

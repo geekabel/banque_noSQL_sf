@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Document\Client;
 use App\Document\Compte;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,38 +19,83 @@ class AccountController extends AbstractController
     }
 
     /**
-     * @Route("/add/{amount}", name="add_amount", methods={"POST"})
+     * @Route("/add/{amount}/{numcompte}", name="add_amount", methods={"POST"})
      */
-    public function addMoneyOnAccount($amount)
+    public function addMoneyOnAccount($amount, $numcompte)
     {
 
-        $compte = $this->dm->getRepository(Compte::class)->findOneBy(['numcompte' => '123456789']);
+        $compte = $this->dm->getRepository(Compte::class)->findOneBy(['numcompte' => $numcompte]);
         $compte->setSolde($compte->getSolde() + $amount);
         $this->dm->persist($compte);
         $this->dm->flush();
 
         return $this->json([
-            'message' => 'Amount added successfully',
+            'message' => 'Votre compte a été crédité de ' . $amount . '€' . ' avec succès !',
             'amount' => $amount,
             'new_balance' => $compte->getSolde(),
         ], 201);
     }
 
     /**
-     * @Route("/list", name="account_list", methods={"GET"})
+     * @Route("/subtract/{amount}/{numcompte}", name="subtract_amount", methods={"POST"})
      */
-    public function listAccount()
+    public function subtractMoneyFromAccount($amount, $numcompte)
     {
 
-        $account = $this->dm->getRepository(Client::class)->findAll();
+        $compte = $this->dm->getRepository(Compte::class)->findOneBy(['numcompte' => $numcompte]);
+        $compte->setSolde($compte->getSolde() - $amount);
+        $this->dm->persist($compte);
+        $this->dm->flush();
 
-        $befJson = [];
-        $nom = $account->getNom() . $account->getNom();
-        $adresse = $account->getAdresse()
-            ->getNumcompte();
-        //$numCompte = $account->getNumcompte();
-       
-
-        return $this->json($nom);
+        return $this->json([
+            'message' => 'Votre compte a été débité de ' . $amount . '€' . 'avec succès !',
+            'amount' => $amount,
+            'new_balance' => $compte->getSolde(),
+        ], 201);
     }
+
+    /**
+     * @Route("/transfer/{amount}/{numcompte}/{numcompte_dest}", name="transfer_amount", methods={"POST"})
+     */
+    public function transferMoney($amount, $numcompte, $numcompte_dest)
+    {
+
+        $compte = $this->dm->getRepository(Compte::class)->findOneBy(['numcompte' => $numcompte]);
+        $compte_dest = $this->dm->getRepository(Compte::class)->findOneBy(['numcompte' => $numcompte_dest]);
+        $compte->setSolde($compte->getSolde() - $amount);
+        $compte_dest->setSolde($compte_dest->getSolde() + $amount);
+        $this->dm->persist($compte);
+        $this->dm->persist($compte_dest);
+        $this->dm->flush();
+
+        return $this->json([
+            'message' => 'Le compte ' . $compte . ' a été débité de ' . $amount . '€' . 'avec succès !',
+            'amount' => $amount,
+            'compte' => '',
+            'new_balance' => $compte->getSolde(),
+        ], 201);
+    }
+
+    /**
+     * @Route("/list/{numcompte}", name="list_account", methods={"GET"})
+     */
+    public function listSoldeAccount($numcompte)
+    {
+        $solde = $this->dm->getRepository(Compte::class)->findSoldeByNumCompte($numcompte);
+        // dd($solde);
+        if ($solde == null && $solde < 0) {
+            $solde = 0;
+
+            return $this->json([
+                'message' => 'Le solde de votre compte est insuffisant !',
+                'solde' => 'Le solde de votre compte s\'eleve à ' . $solde . '€',
+            ], 200);
+        }
+
+        return $this->json([
+            'message' => 'Le solde de votre compte est de ' . $solde . '€',
+            'solde' => $solde,
+        ], 200);
+    }
+
 }

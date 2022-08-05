@@ -10,7 +10,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations\ReferenceMany;
 
 
 /**
- * @MongoDB\Document(collection="client")
+ * @MongoDB\Document(collection="client", repositoryClass="App\Repository\ClientRepository")
  */
 class Client
 {
